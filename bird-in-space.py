@@ -23,8 +23,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Bird In Space')  # Set window caption
 
 # define font
-font = pygame.font.SysFont('Bauhaus 93', 60)
-
+font = pygame.font.SysFont('Bauhaus 93', 60) # 60 = font size
 # define colours
 white = (255, 255, 255)
 
@@ -48,9 +47,9 @@ button_img = pygame.image.load('img/restart.png')  # Restart button image
 
 
 # function for outputting text onto the screen | Score Counter
-def draw_text(text, font, text_col, x, y):
+def draw_text(text, font, text_col, x, y): # Func. called in run loop
     img = font.render(text, True, text_col)
-    screen.blit(img, (x, y))
+    screen.blit(img, (x, y)) # render on screen
 
 # This function resets the game
 def reset_game():
@@ -76,7 +75,7 @@ class Bird(pygame.sprite.Sprite):
         self.image = self.images[self.index]
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]  # decides the location of the bird
-        self.vel = 0
+        self.vel = 0 # bird does not translate horizontally for the scene
         self.clicked = False
     
     # Update the Bird. Sets gravity and flutter 
@@ -188,16 +187,20 @@ while run:
     screen.blit(ground_img, (ground_scroll, 768)) # 768 = y-coordinate of ground
 
     # check the score
-    if len(pipe_group) > 0:
+    if len(pipe_group) > 0: # giving the values in the pipeGrp
+        
         if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.left\
                 and bird_group.sprites()[0].rect.right < pipe_group.sprites()[0].rect.right\
                 and pass_pipe == False:
+            # if the left side of the bird has gone past the rect.left of Pipe
+            # and if the right side of the bird has gone past the rect.right of Pipe
+            # and pass_pipe == False
             pass_pipe = True
-        if pass_pipe == True:
+        if pass_pipe == True: ## This below is the exit condition for score increment
             if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.right:
-                score += 1
+                score += 1 # scores increases
                 pass_pipe = False
-    draw_text(str(score), font, white, int(screen_width / 2), 20)
+    draw_text(str(score), font, white, int(screen_width / 2), 20) # Draw the score on screen
 
     # look for collision
     if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.top < 0: # also, if bird goes over the screen top, it's gameover
@@ -215,9 +218,9 @@ while run:
             btm_pipe = Pipe(screen_width, int(screen_height / 2) + pipe_height, -1) 
             top_pipe = Pipe(screen_width, int(
                 screen_height / 2) + pipe_height, 1)
-            pipe_group.add(btm_pipe)
-            pipe_group.add(top_pipe)
-            last_pipe = time_now
+            pipe_group.add(btm_pipe) # adds bottomPipe to pipeGrp
+            pipe_group.add(top_pipe) # adds topPipe to pipeGrp
+            last_pipe = time_now 
 
         pipe_group.update() # updates the pipe group with the newly generated pipes
 
@@ -237,6 +240,6 @@ while run:
         if event.type == pygame.MOUSEBUTTONDOWN and flying == False and game_over == False:
             flying = True
 
-    pygame.display.update()
+    pygame.display.update() # keeps window dynamically updating
 
 pygame.quit()
