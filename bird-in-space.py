@@ -52,8 +52,6 @@ def draw_text(text, font, text_col, x, y):
     screen.blit(img, (x, y))
 
 # This function resets the game
-
-
 def reset_game():
     pipe_group.empty()
     flappy.rect.x = 100
@@ -62,8 +60,6 @@ def reset_game():
     return score
 
 # Bird game using Pygame's Sprite classes
-
-
 class Bird(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
@@ -81,7 +77,8 @@ class Bird(pygame.sprite.Sprite):
         self.rect.center = [x, y]  # decides the location of the bird
         self.vel = 0
         self.clicked = False
-    # 
+    
+    # Update the Bird. Sets gravity and flutter 
     def update(self):
         if flying == True:
             # Gravity implemetation
