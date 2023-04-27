@@ -33,9 +33,10 @@ ground_scroll = 0  # ground scroll speed
 scroll_speed = 4  # the scrolling speed
 flying = False # setting the game start event via this variable
 game_over = False  
-pipe_gap = 200  # Distance between 2 obstacles
-pipe_frequency = 1500  # milliseconds
-last_pipe = pygame.time.get_ticks() - pipe_frequency
+pipe_gap = 200  # Distance between 2 obstacles on same vertical axis
+pipe_frequency = 1500  # milliseconds 
+last_pipe = pygame.time.get_ticks() - pipe_frequency # time when last pipe was created. none at start
+# also, pipes get started creating rights from the beginning
 score = 0  # Intialises score fom Zero
 pass_pipe = False  # Collision
 
@@ -46,7 +47,7 @@ ground_img = pygame.image.load('img/ground5.png')  # Ground image
 button_img = pygame.image.load('img/restart.png')  # Restart button image
 
 
-# function for outputting text onto the screen
+# function for outputting text onto the screen | Score Counter
 def draw_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
     screen.blit(img, (x, y))
@@ -90,11 +91,11 @@ class Bird(pygame.sprite.Sprite):
 
         if game_over == False:
             # Fly the bird (JUMP)
-            #self.clicked ensures that we can't hold onto the button, and keep going up.
+            # self.clicked ensures that we can't hold onto the button, and keep going up.
             if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:  
                 self.clicked = True
                 self.vel = -10 # jumps by 2 (opposite to gravity)
-            if pygame.mouse.get_pressed()[0] == 0:
+            if pygame.mouse.get_pressed()[0] == 0: # ie, holding onto the mouse-click would get registered as only 1 click
                 self.clicked = False
 
             # handle the animation
@@ -115,26 +116,26 @@ class Bird(pygame.sprite.Sprite):
         else:
             # point the bird at the ground
             self.image = pygame.transform.rotate(self.images[self.index], -90)
+            # rotates bird 90 degrees clockwise. (This is the condition for collision/game_over)
 
 
 class Pipe(pygame.sprite.Sprite):
-
-    def __init__(self, x, y, position):
-        pygame.sprite.Sprite.__init__(self)
+    def __init__(self, x, y, position): # initialisation
+        pygame.sprite.Sprite.__init__(self) 
         self.image = pygame.image.load("img/pipe3.png")
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect() # image loaded and made a rectangle from it
         # position variable determines if the pipe is coming from the bottom or top
         # position 1 is from the top, -1 is from the bottom
         if position == 1:
-            self.image = pygame.transform.flip(self.image, False, True)
+            self.image = pygame.transform.flip(self.image, False, True) # false=Xaxis,True=yaxis
             self.rect.bottomleft = [x, y - int(pipe_gap / 2)]
         elif position == -1:
             self.rect.topleft = [x, y + int(pipe_gap / 2)]
 
     def update(self):
-        self.rect.x -= scroll_speed
-        if self.rect.right < 0:
-            self.kill()
+        self.rect.x -= scroll_speed # scroll speed for the pipes, towards left
+        if self.rect.right < 0: # when the x coordinates goes off screen
+            self.kill() # kills pipes once they off the screen. Saves memory and compute
 
 
 class Button():
@@ -161,7 +162,7 @@ class Button():
 
 
 pipe_group = pygame.sprite.Group()
-bird_group = pygame.sprite.Group()
+bird_group = pygame.sprite.Group() 
 
 flappy = Bird(100, int(screen_height / 2))
 
@@ -199,27 +200,26 @@ while run:
     draw_text(str(score), font, white, int(screen_width / 2), 20)
 
     # look for collision
-    if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.top < 0:
-        game_over = True
+    if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.top < 0: # also, if bird goes over the screen top, it's gameover
+        game_over = True # if any element form birdGrp collides with any element from pipeGrp >> GameOver
     # once the bird has hit the ground it's game over and no longer flying
     if flappy.rect.bottom >= 768:
         game_over = True
-        flying = False
+        flying = False # game over when bird hits ground
 
-    if flying == True and game_over == False:
+    if flying == True and game_over == False: # if flying is happening, and not gameover, we render pipes
         # generate new pipes
         time_now = pygame.time.get_ticks()
         if time_now - last_pipe > pipe_frequency:
-            pipe_height = random.randint(-100, 100)
-            btm_pipe = Pipe(screen_width, int(
-                screen_height / 2) + pipe_height, -1)
+            pipe_height = random.randint(-100, 100) # random pipe heights
+            btm_pipe = Pipe(screen_width, int(screen_height / 2) + pipe_height, -1) 
             top_pipe = Pipe(screen_width, int(
                 screen_height / 2) + pipe_height, 1)
             pipe_group.add(btm_pipe)
             pipe_group.add(top_pipe)
             last_pipe = time_now
 
-        pipe_group.update()
+        pipe_group.update() # updates the pipe group with the newly generated pipes
 
         ground_scroll -= scroll_speed
         if abs(ground_scroll) > 30:
